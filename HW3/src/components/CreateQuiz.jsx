@@ -65,9 +65,9 @@ const CreateQuiz = () => {
    */
   const saveQuiz = () => {
     if (selectedQuestions.length === numberOfQuestions) {
-      const quizId = uuidv4();
-      localStorage.setItem(quizId, JSON.stringify(selectedQuestions));
-      setShareLink(`${window.location.origin}/play-quiz/${quizId}`);
+      const quizId = uuidv4(); // Generates a unique ID
+      localStorage.setItem(quizId, JSON.stringify(selectedQuestions)); // Stores the quiz in localStorage with the generated ID
+      setShareLink(quizId); // Sets the shareable link to just the quiz ID
       setStep(3); // Move to the final step
     } else {
       alert(`Please select exactly ${numberOfQuestions} questions.`);

@@ -37,10 +37,10 @@ const GenerateQuiz = () => {
     e.preventDefault();
     axios.get(`https://the-trivia-api.com/api/questions?categories=${category}&limit=${numberOfQuestions}&difficulty=${difficulty}`)
       .then(response => {
-        const quizId = uuidv4();
-        localStorage.setItem(quizId, JSON.stringify(response.data));
+        const quizId = uuidv4(); // Generates a unique ID
+        localStorage.setItem(quizId, JSON.stringify(response.data)); // Stores the quiz in localStorage with the generated ID
         setQuizQuestions(response.data);
-        setShareLink(`${window.location.origin}/play-quiz/${quizId}`);
+        setShareLink(quizId); // Sets the shareable link to just the quiz ID
       })
       .catch(error => {
         console.error('There was an error generating the quiz!', error);
