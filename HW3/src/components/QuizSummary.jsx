@@ -12,6 +12,11 @@ const QuizSummary = () => {
   const navigate = useNavigate();
   const { quizQuestions, userAnswers, score } = location.state;
 
+  // Debug log to check the received score and data
+  console.log("Received Score:", score);
+  console.log("Quiz Questions:", quizQuestions);
+  console.log("User Answers:", userAnswers);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-1000 dark:bg-gray-800">
       <h2 className="text-2xl mb-4 text-gray-900 dark:text-white">Quiz Summary</h2>

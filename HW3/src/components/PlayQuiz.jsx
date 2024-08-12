@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-/**
- * PlayQuiz Component
- * 
- * Manages the quiz gameplay, allowing the user to answer questions and
- * keeping track of their score. Navigates to the QuizSummary component
- * when the quiz is completed.
- */
 const PlayQuiz = () => {
   const { quizId } = useParams();
   const navigate = useNavigate();
@@ -17,7 +10,6 @@ const PlayQuiz = () => {
   const [score, setScore] = useState(0);
   const [userAnswers, setUserAnswers] = useState([]);
 
-  // Load quiz data from local storage
   useEffect(() => {
     const quizData = localStorage.getItem(quizId);
     if (quizData) {
@@ -27,43 +19,38 @@ const PlayQuiz = () => {
     }
   }, [quizId]);
 
-  /**
-   * Handles the selection of an answer.
-   * 
-   * @param {string} answer - The answer selected by the user.
-   */
   const handleAnswerChange = (answer) => {
     setSelectedAnswer(answer);
   };
 
-  /**
-   * Moves to the next question or submits the quiz if it was the last question.
-   */
   const handleNextQuestion = () => {
-    // Update the score if the selected answer is correct
-    if (selectedAnswer === quizQuestions[currentQuestionIndex].correctAnswer) {
-      setScore(score + 1);
+    const correctAnswer = quizQuestions[currentQuestionIndex].correctAnswer;
+
+    // Check if the selected answer is correct and update the score
+    if (selectedAnswer === correctAnswer) {
+      setScore(prevScore => prevScore + 1);
     }
 
     // Store the selected answer and reset the selection
     setUserAnswers([...userAnswers, selectedAnswer]);
     setSelectedAnswer(null);
 
-    // Move to the next question or navigate to the quiz summary
     if (currentQuestionIndex + 1 < quizQuestions.length) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
+      // Log the final score before navigating
+      console.log("Final Score:", score + (selectedAnswer === correctAnswer ? 1 : 0));
+      
       navigate('/quiz-summary', {
         state: {
           quizQuestions,
           userAnswers: [...userAnswers, selectedAnswer],
-          score,
+          score: score + (selectedAnswer === correctAnswer ? 1 : 0), // Ensure the final score is passed correctly
         },
       });
     }
   };
 
-  // Display loading state if quiz data is not yet loaded
   if (quizQuestions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-1000 dark:bg-gray-800">

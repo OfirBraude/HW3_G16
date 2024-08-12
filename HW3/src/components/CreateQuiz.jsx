@@ -7,19 +7,19 @@ import { v4 as uuidv4 } from 'uuid';
  * 
  * Allows the user to create a custom quiz by selecting specific questions
  * from a set of available questions based on the selected category and difficulty.
- * The created quiz can then be shared via a link.
+ * The created quiz can then be shared via a quiz ID.
  */
 const CreateQuiz = () => {
   const [difficulty, setDifficulty] = useState('medium');
   const [category, setCategory] = useState('');
-  const [numberOfQuestions, setNumberOfQuestions] = useState(5);
+  const [numberOfQuestions, setNumberOfQuestions] = useState(5); // Default value is 5, but it can be changed
   const [categories, setCategories] = useState([]);
   const [availableQuestions, setAvailableQuestions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [shareLink, setShareLink] = useState('');
   const [step, setStep] = useState(1);
 
-  // Fetch available quiz categories from the trivia API
+  // Fetch available quiz categories from the trivia API when the component mounts
   useEffect(() => {
     axios.get('https://the-trivia-api.com/api/categories')
       .then(response => {
@@ -40,7 +40,7 @@ const CreateQuiz = () => {
     axios.get(`https://the-trivia-api.com/api/questions?categories=${category}&difficulty=${difficulty}`)
       .then(response => {
         setAvailableQuestions(response.data);
-        setStep(2); // Move to the next step
+        setStep(2); // Move to the next step to select questions
       })
       .catch(error => {
         console.error('There was an error fetching the questions!', error);
@@ -49,6 +49,7 @@ const CreateQuiz = () => {
 
   /**
    * Toggles the selection of a question.
+   * Adds or removes the question from the selectedQuestions state.
    * 
    * @param {object} question - The question object to toggle.
    */
@@ -61,16 +62,20 @@ const CreateQuiz = () => {
   };
 
   /**
-   * Saves the selected questions as a quiz and generates a shareable link.
+   * Saves the selected questions as a quiz and generates a quiz ID.
+   * Validates that the number of selected questions matches the user's input.
    */
   const saveQuiz = () => {
-    if (selectedQuestions.length === numberOfQuestions) {
+    console.log('Selected Questions:', selectedQuestions);
+    console.log('Number of Questions Required:', numberOfQuestions);
+    
+    if (selectedQuestions.length === parseInt(numberOfQuestions)) {
       const quizId = uuidv4(); // Generates a unique ID
       localStorage.setItem(quizId, JSON.stringify(selectedQuestions)); // Stores the quiz in localStorage with the generated ID
       setShareLink(quizId); // Sets the shareable link to just the quiz ID
-      setStep(3); // Move to the final step
+      setStep(3); // Move to the final step to display the quiz ID
     } else {
-      alert(`Please select exactly ${numberOfQuestions} questions.`);
+      alert(`Please select exactly ${numberOfQuestions} questions.`); // Displays a validation message
     }
   };
 
@@ -78,6 +83,8 @@ const CreateQuiz = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-1000">
       <div className="bg-white dark:bg-gray-900 p-14 rounded shadow-md w-full max-w-2xl border border-gray-300 dark:border-gray-600">
         <h2 className="text-2xl mb-4 text-gray-800 dark:text-gray-200">Create a Quiz</h2>
+        
+        {/* Step 1: Form to select quiz settings */}
         {step === 1 && (
           <form onSubmit={fetchQuestions}>
             <div className="mb-4 p-4 rounded border border-gray-300 dark:border-gray-600">
@@ -121,6 +128,8 @@ const CreateQuiz = () => {
             </button>
           </form>
         )}
+
+        {/* Step 2: Select questions */}
         {step === 2 && (
           <div>
             <h3 className="text-lg mb-2 text-gray-800 dark:text-gray-200">Select Questions (Select up to {numberOfQuestions})</h3>
@@ -140,10 +149,12 @@ const CreateQuiz = () => {
             </button>
           </div>
         )}
+
+        {/* Step 3: Display the generated quiz ID */}
         {step === 3 && (
           <div>
             <h3 className="text-lg text-gray-800 dark:text-gray-200">Quiz Created!</h3>
-            <p className="text-gray-800 dark:text-gray-200">Your quiz has been successfully created. You can share the link below with others to play the quiz.</p>
+            <p className="text-gray-800 dark:text-gray-200">Your quiz has been successfully created. The quiz ID is:</p>
             <div className="mt-4">
               <input
                 type="text"
@@ -155,7 +166,7 @@ const CreateQuiz = () => {
                 onClick={() => navigator.clipboard.writeText(shareLink)}
                 className="bg-blue-500 dark:bg-blue-700 text-white dark:text-gray-200 px-4 py-2 rounded mt-2"
               >
-                Copy Link
+                Copy Quiz ID
               </button>
             </div>
           </div>
